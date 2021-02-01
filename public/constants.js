@@ -1,15 +1,28 @@
 export const ZOOM_LEVEL = 15;
 
 export const FORM_STRING =
-        '<form id="letterForm">' +
-        '<label for="letterText">Letter</label><br>' +
-        '<input type="text" id="letterText" name="letterText"><br>' +
+    '<div id="form">' +
+    '<form id="letterForm">' +
+    '<div class="form-group">' +
+    '<label for="locationTitle">Location Title*</label>' +
+    '<input type="text" class="form-control" id="locationTitle" name="locationTitle">' +
+    '</div>' +
 
-        '<label for="author">Name (optional)</label><br>' +
-        '<input type="text" id="author" name="author"><br>' +
+    '<div class="form-group">' +
+    '<label for="letterText">Letter*</label>' +
+    '<textarea type="text" class="form-control"id="letterText" rows="5" name="letterText"></textarea>' +
+    '</div>' +
 
-        '<label for="email">Email (optional)</label><br>' +
-        '<input type="text" id="email" name="email"><br>' +
+    '<div class="form-group">' +
+    '<label for="author">Name</label>' +
+    '<input type="text" class="form-control"id="author" name="author">' +
+    '</div>' +
 
-        '<input type="submit">' +
-        '</form>';
+    '<div class="form-group">' +
+    '<label for="email">Email</label>' +
+    '<input type="text" class="form-control"id="email" name="email">' +
+    '</div>' +
+
+    '<input type="submit" class="btn btn-primary">' +
+    '</form>' +
+    '</div>';
