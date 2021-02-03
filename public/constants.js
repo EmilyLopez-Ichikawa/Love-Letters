@@ -1,3 +1,12 @@
+export const STL_COORDS = { lat: 38.6300000, lng: -90.2400000 };
+export const STL_BOUNDS = {
+    north: 38.86,
+    south: 38.46,
+    west: -90.86,
+    east: -89.7,
+};
+
+
 export const ZOOM_LEVEL = 15;
 
 export const FORM_STRING =
