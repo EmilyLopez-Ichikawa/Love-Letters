@@ -1,21 +1,21 @@
 import { ZOOM_LEVEL, FORM_STRING, STL_COORDS } from './constants.js';
 let marker;
+let map;
 const collection = firebase.firestore().collection('letters');
 
 window.initMap = function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
+    map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         center: STL_COORDS,
         gestureHandling: "greedy"
     });
-
     // var styles = [{ "featureType": "landscape", "stylers": [{ "saturation": -100 }, { "lightness": 65 }, { "visibility": "on" }] }, { "featureType": "poi", "stylers": [{ "saturation": -100 }, { "lightness": 51 }, { "visibility": "simplified" }] }, { "featureType": "road.highway", "stylers": [{ "saturation": -100 }, { "visibility": "simplified" }] }, { "featureType": "road.arterial", "stylers": [{ "saturation": -100 }, { "lightness": 30 }, { "visibility": "on" }] }, { "featureType": "road.local", "stylers": [{ "saturation": -100 }, { "lightness": 40 }, { "visibility": "on" }] }, { "featureType": "transit", "stylers": [{ "saturation": -100 }, { "visibility": "simplified" }] }, { "featureType": "administrative.province", "stylers": [{ "visibility": "off" }] }, { "featureType": "water", "elementType": "labels", "stylers": [{ "visibility": "on" }, { "lightness": -25 }, { "saturation": -100 }] }, { "featureType": "water", "elementType": "geometry", "stylers": [{ "hue": "#ffff00" }, { "lightness": -25 }, { "saturation": -97 }] }];
     // map.set('styles', styles);
 
     map.addListener('click', function(e) {
         infowindow.close();
         if (marker) {
-            placeMarker(e.latLng, map);
+            placeMarker(e.latLng);
         } else {
             marker = new google.maps.Marker({
                 map: map
@@ -28,6 +28,8 @@ window.initMap = function initMap() {
     });
 
     function placeMarker(location) {
+        marker.setVisible(true);
+
         marker.setPosition(location);
         if (map.getZoom() < ZOOM_LEVEL) {
             map.setZoom(ZOOM_LEVEL);
@@ -51,6 +53,7 @@ window.initMap = function initMap() {
             addStoryToDb(formData, location);
             infowindow.close();
             form.reset();
+            marker.setVisible(false);
         });
     });
 }
@@ -59,45 +62,32 @@ function addStoryToDb(formData, location) {
     let object = {};
     formData.forEach((value, key) => object[key] = value);
     object.location = location;
-    object.published = false;
-    console.log(object);
+    object.published = true;
     collection.add(object);
 }
 
-// async function getStories() {
-//     const snapshot = await collection.get();
-//     return snapshot.docs.map(doc => doc.data());
-// }
+function getStories() {
+    collection.where("published", "==", true)
+        .onSnapshot((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                addStories(doc.data());
+            });
+        });
+}
 
-// getStories().then(function (stories) {
-//     for (let i = 0; i < stories.length; i++) {
-//         var dbEntry = stories[i];
+getStories();
 
-//         var newDiv = document.createElement("div");
-
-//         for (const [key, value] of Object.entries(stories[i])) {
-//             if (key != "Attachments") {
-
-//                 var text = document.createTextNode(value);
-//                 var label = document.createElement("h3");
-//                 label.appendChild(document.createTextNode(key));
-//                 newDiv.appendChild(label);
-//                 newDiv.appendChild(text);
-
-//             } else {
-//                 var attachments = dbEntry.Attachments
-//                 var label = document.createElement("h3");
-//                 label.appendChild(document.createTextNode("Attachments"));
-//                 newDiv.appendChild(label);
-//                 for (var j = 0; j < attachments.length; j++) {
-//                     var img = document.createElement("img");
-//                     img.setAttribute('src', attachments[j].url);
-//                     newDiv.appendChild(img);
-//                 }
-//             }
-//         }
-//         newDiv.setAttribute("class", "story");
-
-//         document.getElementById("stories").appendChild(newDiv);
-//     }
-// });
+function addStories(storyEntry) {
+    let storyPin = new google.maps.Marker({
+        map: map,
+        position: { lat: storyEntry.location.h_, lng: storyEntry.location.c_ },
+        icon: "https://api.geoapify.com/v1/icon/?type=material&color=%23ef2870&size=small&icon=envelope&iconType=awesome&apiKey=38a74f2c2e344d0ca7b18ca97a53c829"
+    });
+    storyPin.addListener('click', function(e) {
+        console.log("story pin clicked");
+    });
+    // console.log(storyEntry.author);
+    // console.log(storyEntry.email);
+    // console.log(storyEntry.letterText);
+    // console.log(storyEntry.locationTitle);
+}
