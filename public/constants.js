@@ -2,8 +2,8 @@ export const STL_COORDS = { lat: 38.6300000, lng: -90.2400000 };
 export const STL_BOUNDS = {
     north: 38.86,
     south: 38.46,
-    west: -90.86,
-    east: -89.7,
+    west: -90.7,
+    east: -90,
 };
 
 
@@ -13,12 +13,12 @@ export const FORM_STRING =
     '<div id="form">' +
     '<form id="letterForm">' +
     '<div class="form-group">' +
-    '<label for="locationTitle">Location Title*</label>' +
+    '<label for="locationTitle">Location Title <sup>*</sup></label>' +
     '<input type="text" class="form-control" id="locationTitle" name="locationTitle">' +
     '</div>' +
 
     '<div class="form-group">' +
-    '<label for="letterText">Letter*</label>' +
+    '<label for="letterText">Letter <sup>*</sup></label>' +
     '<textarea type="text" class="form-control"id="letterText" rows="5" name="letterText"></textarea>' +
     '</div>' +
 

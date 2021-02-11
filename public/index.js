@@ -1,5 +1,4 @@
-import { ZOOM_LEVEL, FORM_STRING, STL_COORDS, STL_BOUNDS } from './constants.js';
-import { Letter } from './letter.js';
+import { ZOOM_LEVEL, FORM_STRING, STL_COORDS } from './constants.js';
 let marker;
 const collection = firebase.firestore().collection('letters');
 
@@ -7,10 +6,6 @@ window.initMap = function initMap() {
     const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         center: STL_COORDS,
-        restriction: {
-            latLngBounds: STL_BOUNDS,
-            strictBounds: false,
-        },
         gestureHandling: "greedy"
     });
 
@@ -62,7 +57,7 @@ window.initMap = function initMap() {
 
 function addStoryToDb(formData, location) {
     let object = {};
-    formData.forEach((value, key) => object.key = value);
+    formData.forEach((value, key) => object[key] = value);
     object.location = location;
     object.published = false;
     console.log(object);
