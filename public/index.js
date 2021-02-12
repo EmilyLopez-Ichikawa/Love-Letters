@@ -1,6 +1,7 @@
-import { ZOOM_LEVEL, FORM_STRING, STL_COORDS } from './constants.js';
+import { STL_COORDS, ZOOM_LEVEL, FORM_STRING } from './constants.js';
 let marker;
 let map;
+let storyWindow;
 const collection = firebase.firestore().collection('letters');
 
 window.initMap = function initMap() {
@@ -13,7 +14,8 @@ window.initMap = function initMap() {
     // map.set('styles', styles);
 
     map.addListener('click', function(e) {
-        infowindow.close();
+        formWindow.close();
+        storyWindow.close();
         if (marker) {
             placeMarker(e.latLng);
         } else {
@@ -21,7 +23,7 @@ window.initMap = function initMap() {
                 map: map
             });
             marker.addListener('click', function(e) {
-                infowindow.open(map, marker);
+                formWindow.open(map, marker);
             });
             placeMarker(e.latLng, map);
         }
@@ -29,7 +31,6 @@ window.initMap = function initMap() {
 
     function placeMarker(location) {
         marker.setVisible(true);
-
         marker.setPosition(location);
         if (map.getZoom() < ZOOM_LEVEL) {
             map.setZoom(ZOOM_LEVEL);
@@ -37,21 +38,25 @@ window.initMap = function initMap() {
         map.panTo(location);
     }
 
-    const infowindow = new google.maps.InfoWindow({
+    const formWindow = new google.maps.InfoWindow({
+        maxWidth: 500,
+        minWidth: 300,
         content: FORM_STRING
     });
 
-    google.maps.event.addListener(infowindow, 'domready', function() {
+    storyWindow = new google.maps.InfoWindow();
+
+    google.maps.event.addListener(formWindow, 'domready', function() {
         let form = document.getElementById("letterForm");
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(form);
-            let position = infowindow.getPosition();
+            let position = formWindow.getPosition();
             let location = new firebase.firestore.GeoPoint(position.lat(), position.lng());
 
             addStoryToDb(formData, location);
-            infowindow.close();
+            formWindow.close();
             form.reset();
             marker.setVisible(false);
         });
@@ -70,24 +75,49 @@ function getStories() {
     collection.where("published", "==", true)
         .onSnapshot((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                addStories(doc.data());
+                addStoriesToMap(doc.data());
             });
         });
 }
 
 getStories();
 
-function addStories(storyEntry) {
+
+function addStoriesToMap(storyEntry) {
     let storyPin = new google.maps.Marker({
         map: map,
         position: { lat: storyEntry.location.h_, lng: storyEntry.location.c_ },
-        icon: "https://api.geoapify.com/v1/icon/?type=material&color=%23ef2870&size=small&icon=envelope&iconType=awesome&apiKey=38a74f2c2e344d0ca7b18ca97a53c829"
+        icon: "https://api.geoapify.com/v1/icon/?type=material&color=%23ef2870&size=small&icon=envelope&iconType=awesome&apiKey=38a74f2c2e344d0ca7b18ca97a53c829",
+        data: {
+            author: storyEntry.author,
+            email: storyEntry.email,
+            letterText: storyEntry.letterText,
+            locationTitle: storyEntry.locationTitle
+        }
     });
     storyPin.addListener('click', function(e) {
-        console.log("story pin clicked");
+        if (marker) {
+            marker.setVisible(false);
+        }
+
+        const STORY_WINDOW_STRING = createStoryWindowString(storyPin.data);
+        storyWindow.setContent(STORY_WINDOW_STRING);
+        storyWindow.open(map, storyPin);
     });
+
     // console.log(storyEntry.author);
     // console.log(storyEntry.email);
     // console.log(storyEntry.letterText);
     // console.log(storyEntry.locationTitle);
+}
+
+function createStoryWindowString(data) {
+    let str = "<div>";
+    for (const [key, value] of Object.entries(data)) {
+        str += "<h3>" + key + "</h3>";
+        str += "<p>" + value + "</p>";
+    }
+
+    str += "</div>"
+    return str;
 }
