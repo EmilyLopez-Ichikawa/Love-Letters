@@ -7,14 +7,13 @@ assignees: ''
 
 ---
 
-1. UI Link or description
-[text here]
+#UI Link or description
 
-2. What user problem does this solve?
-[text here]
 
-3. Acceptance Criteria (Given, When, Then) Happy and Sad Path
-[text here]
+#What user problem does this solve?
 
-4. Developer Implementation Notes
-[text here]
+
+#Acceptance Criteria (Given, When, Then) Happy and Sad Path
+
+
+#Developer Implementation Notes
